@@ -22,12 +22,12 @@ let package = Package(
         .package(
             name: "Segment",
             url: "https://github.com/segmentio/analytics-swift.git",
-            from: "1.1.2"
+            from: "1.4.0"
         ),
         .package(
             name: "AppsFlyerLib",
             url: "https://github.com/AppsFlyerSDK/AppsFlyerFramework",
-            from: "6.3.2"
+            from: "6.10.0"
         )
     ],
     targets: [

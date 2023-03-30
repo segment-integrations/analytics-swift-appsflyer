@@ -33,7 +33,11 @@ import UIKit
 import Segment
 import AppsFlyerLib
 
-@objc
+@objc(SEGAppsFlyerDestination)
+public class ObjCSegmentAppsFlyer: NSObject, ObjCDestination, ObjCDestinationShim {
+    public func instance() -> DestinationPlugin { return AppsFlyerDestination() }
+}
+
 public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
     public let timeline = Timeline()
     public let type = PluginType.destination
@@ -189,12 +193,13 @@ extension AppsFlyerDestination: AppsFlyerLibDelegate {
                         "source": mediaSource,
                         "name": campaign
                     ]
-                    
-                    let properties: [String: Any] = [
+                    let campaignStr = (campaign.compactMap({ (key, value) -> String in
+                        return "\(key)=\(value)"
+                    }) as Array).joined(separator: ";")
+                    let properties: [String: Codable] = [
                         "provider": "AppsFlyer",
-                        "campaign": campaign
+                        "campaign": campaignStr
                     ]
-                    
                     analytics?.track(name: "Install Attributed", properties: properties)
                     
                 }
@@ -222,10 +227,12 @@ extension AppsFlyerDestination: AppsFlyerLibDelegate {
                 "name": campaign,
                 "url": referrer
             ]
-            
-            let properties: [String: Any] = [
+            let campaignStr = (campaign.compactMap({ (key, value) -> String in
+                return "\(key)=\(value)"
+            }) as Array).joined(separator: ";")
+            let properties: [String: Codable] = [
                 "provider": "AppsFlyer",
-                "campaign": campaign
+                "campaign": campaignStr
             ]
             
             analytics?.track(name: "Deep Link Opened", properties: properties)
@@ -270,10 +277,12 @@ extension AppsFlyerDestination: DeepLinkDelegate, UIApplicationDelegate {
                 "name": deepLinkObj.campaign ?? "",
                 "product": deepLinkObj.deeplinkValue ?? ""
             ]
-            
-            let properties: [String: Any] = [
+            let campaignStr = (campaign.compactMap({ (key, value) -> String in
+                return "\(key)=\(value)"
+            }) as Array).joined(separator: ";")
+            let properties: [String: Codable] = [
                 "provider": "AppsFlyer",
-                "campaign": campaign
+                "campaign": campaignStr
             ]
             
             analytics?.track(name: "Deferred Deep Link", properties: properties)
@@ -285,10 +294,12 @@ extension AppsFlyerDestination: DeepLinkDelegate, UIApplicationDelegate {
                 "name": deepLinkObj.campaign ?? "",
                 "product": deepLinkObj.deeplinkValue ?? ""
             ]
-            
-            let properties: [String: Any] = [
+            let campaignStr = (campaign.compactMap({ (key, value) -> String in
+                return "\(key)=\(value)"
+            }) as Array).joined(separator: ";")
+            let properties: [String: Codable] = [
                 "provider": "AppsFlyer",
-                "campaign": campaign
+                "campaign": campaignStr
             ]
             
             analytics?.track(name: "Direct Deep Link", properties: properties)
