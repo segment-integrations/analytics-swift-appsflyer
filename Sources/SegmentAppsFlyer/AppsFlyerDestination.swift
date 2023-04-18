@@ -207,13 +207,12 @@ extension AppsFlyerDestination: AppsFlyerLibDelegate {
                 analytics?.track(name: "Organic Install")
             }
         } else {
-            analytics?.log(message: "Not First Launch")
         }
         
     }
     
     public func onConversionDataFail(_ error: Error) {
-        analytics?.log(message: "\(error)")
+        
     }
     
     
@@ -241,7 +240,7 @@ extension AppsFlyerDestination: AppsFlyerLibDelegate {
     
     
     public func onAppOpenAttributionFailure(_ error: Error) {
-        analytics?.log(message: "\(error)")
+        
     }
 }
 
@@ -256,16 +255,12 @@ extension AppsFlyerDestination: VersionedPlugin {
 extension AppsFlyerDestination: DeepLinkDelegate, UIApplicationDelegate {
     
     public func didResolveDeepLink(_ result: DeepLinkResult) {
-        analytics?.log(message: "AppsFlyer Deeplink Result: \(result)")
         switch result.status {
         case .notFound:
-            analytics?.log(message: "AppsFlyer: Deep link not found")
             return
         case .failure:
-            analytics?.log(message: "AppsFlyer: Deep link failure!")
             return
         case .found:
-            analytics?.log(message: "AppsFlyer Deep link found")
         }
         
         guard let deepLinkObj:DeepLink = result.deepLink else { return }
