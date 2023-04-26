@@ -34,8 +34,8 @@ import Segment
 import AppsFlyerLib
 
 @objc(SEGAppsFlyerDestination)
-public class ObjCSegmentAppsFlyer: NSObject, ObjCDestination, ObjCDestinationShim {
-    public func instance() -> DestinationPlugin { return AppsFlyerDestination() }
+public class ObjCSegmentAppsFlyer: NSObject, ObjCPlugin, ObjCPluginShim {
+    public func instance() -> EventPlugin { return AppsFlyerDestination() }
 }
 
 public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
@@ -261,6 +261,7 @@ extension AppsFlyerDestination: DeepLinkDelegate, UIApplicationDelegate {
         case .failure:
             return
         case .found:
+            return
         }
         
         guard let deepLinkObj:DeepLink = result.deepLink else { return }
