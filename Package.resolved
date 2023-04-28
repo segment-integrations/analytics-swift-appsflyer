@@ -6,8 +6,8 @@
         "repositoryURL": "https://github.com/segmentio/analytics-swift.git",
         "state": {
           "branch": null,
-          "revision": "26f23a2ae9b8dd47aeee1bdaa1e203f3bed6044e",
-          "version": "1.4.0"
+          "revision": "79fb17a5d4abf8f80e6a0935e57c7df7b670a6c0",
+          "version": "1.4.1"
         }
       },
       {
@@ -15,8 +15,8 @@
         "repositoryURL": "https://github.com/AppsFlyerSDK/AppsFlyerFramework",
         "state": {
           "branch": null,
-          "revision": "fd2d4e50107280229c77ebfaeb0519ad7e7af83f",
-          "version": "6.10.0"
+          "revision": "096dfa446caae0b92d6dd00486a6178a6ffd9ad9",
+          "version": "6.10.1"
         }
       },
       {
