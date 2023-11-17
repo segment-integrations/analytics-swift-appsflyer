@@ -46,7 +46,26 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
     public var analytics: Analytics?
     
     fileprivate var settings: AppsFlyerSettings? = nil
-    
+
+    private weak var segDelegate: AppsFlyerLibDelegate?
+    private weak var segDLDelegate: DeepLinkDelegate?
+
+    // MARK: - Initialization
+
+    /// Creates and returns an AppsFlyer destination plugin for the Segment SDK
+    ///
+    /// See ``AppsFlyerDestination`` for more information
+    ///
+    /// - Parameters:
+    ///   - segDelegate: When provided, this delegate will get called back for all AppsFlyerDelegate methods - ``onConversionDataSuccess(_:)``, ``onConversionDataFail(_:)``, ``onAppOpenAttribution(_:)``, ``onAppOpenAttributionFailure(_:)``
+    ///   - segDLDelegate: When provided, this delegate will get called back for all DeepLinkDelegate routines, or just ``didResolveDeeplink``
+    public init(segDelegate: AppsFlyerLibDelegate? = nil,
+                segDLDelegate: DeepLinkDelegate? = nil) {
+        self.segDelegate = segDelegate
+        self.segDLDelegate = segDLDelegate
+    }
+
+    // MARK: - Plugin
     public func update(settings: Settings, type: UpdateType) {
         // we've already set up this singleton SDK, can't do it again, so skip.
         guard type == .initial else { return }
@@ -186,6 +205,7 @@ extension AppsFlyerDestination: AppsFlyerLibDelegate {
         }
         
         if (firstLaunchFlag == 1) {
+            segDelegate?.onConversionDataSuccess(conversionInfo)
             if (status == "Non-organic") {
                 if let mediaSource = conversionInfo["media_source"] , let campaign = conversionInfo["campaign"]{
                     
@@ -212,12 +232,12 @@ extension AppsFlyerDestination: AppsFlyerLibDelegate {
     }
     
     public func onConversionDataFail(_ error: Error) {
-        
+        segDelegate?.onConversionDataFail(error)
     }
     
     
     public func onAppOpenAttribution(_ attributionData: [AnyHashable: Any]) {
-        
+        segDelegate?.onAppOpenAttribution?(attributionData)
         if let media_source = attributionData["media_source"] , let campaign = attributionData["campaign"],
            let referrer  = attributionData["http_referrer"] {
             
@@ -240,7 +260,7 @@ extension AppsFlyerDestination: AppsFlyerLibDelegate {
     
     
     public func onAppOpenAttributionFailure(_ error: Error) {
-        
+        segDelegate?.onAppOpenAttributionFailure?(error)
     }
 }
 
@@ -255,6 +275,7 @@ extension AppsFlyerDestination: VersionedPlugin {
 extension AppsFlyerDestination: DeepLinkDelegate, UIApplicationDelegate {
     
     public func didResolveDeepLink(_ result: DeepLinkResult) {
+        segDLDelegate?.didResolveDeepLink?(result)
         switch result.status {
         case .notFound:
             return
