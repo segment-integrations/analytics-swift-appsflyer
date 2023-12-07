@@ -77,7 +77,6 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
         AppsFlyerLib.shared().appleAppID = settings.appleAppID
         
         AppsFlyerLib.shared().waitForATTUserAuthorization(timeoutInterval: 60) //OPTIONAL
-        AppsFlyerLib.shared().isDebug = true //OPTIONAL
         AppsFlyerLib.shared().deepLinkDelegate = self //OPTIONAL
         
         let trackAttributionData = settings.trackAttributionData
