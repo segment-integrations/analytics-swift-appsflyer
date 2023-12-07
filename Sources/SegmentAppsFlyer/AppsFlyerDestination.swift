@@ -279,11 +279,13 @@ extension AppsFlyerDestination: DeepLinkDelegate, UIApplicationDelegate {
         segDLDelegate?.didResolveDeepLink?(result)
         switch result.status {
         case .notFound:
+            analytics?.log(message: "AppsFlyer: Deep link not found")
             return
         case .failure:
+            analytics?.log(message: "AppsFlyer: Deep link failure!")
             return
         case .found:
-            return
+            analytics?.log(message: "AppsFlyer Deep link found")
         }
         
         guard let deepLinkObj:DeepLink = result.deepLink else { return }
@@ -323,53 +325,8 @@ extension AppsFlyerDestination: DeepLinkDelegate, UIApplicationDelegate {
             analytics?.track(name: "Direct Deep Link", properties: properties)
             
         }
-        
-        // Uncomment the following code and alter to fit your implementation in order
-        // to collect deep linking attribution data
-        
-        //Logic to grab AppsFlyer's deep link value to instantiate correct VC
-        //        guard let productNameStr = deepLinkObj.deeplinkValue else {
-        //            print("Could not extract deep_link_value from deep link object")
-        //            return
-        //        }
-        
-        //implement your own logic to open the correct screen/content
-        //        walkToSceneWithParams(product: productNameStr, deepLinkObj: deepLinkObj)
     }
-    
-    
-    // User logic for opening Deep Links
-    //    fileprivate func walkToSceneWithParams(product: String, deepLinkObj: DeepLink) {
-    //        let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
-    //        UIApplication.shared.windows.first?.rootViewController?.dismiss(animated: true, completion: nil)
-    //
-    //        let destVC = "product_vc"
-    //        if let newVC = storyBoard.instantiateVC(withIdentifier: destVC) {
-    //
-    //            print("[AFSDK] AppsFlyer routing to section: \(destVC)")
-    //            newVC.deepLinkData = deepLinkObj
-    //
-    //            UIApplication.shared.windows.first?.rootViewController?.present(newVC, animated: true, completion: nil)
-    //        } else {
-    //            print("[AFSDK] AppsFlyer: could not find section: \(destVC)")
-    //        }
-    //    }
 }
-
-//MARK: - UI StoryBoard Extension; Deep Linking
-
-//Aditonal logic for Deep Linking
-//extension UIStoryboard {
-//    func instantiateVC(withIdentifier identifier: String) -> DLViewController? {
-//        // "identifierToNibNameMap" – dont change it. It is a key for searching IDs
-//        if let identifiersList = self.value(forKey: "identifierToNibNameMap") as? [String: Any] {
-//            if identifiersList[identifier] != nil {
-//                return self.instantiateViewController(withIdentifier: identifier) as? DLViewController
-//            }
-//        }
-//        return nil
-//    }
-//}
 
 private struct AppsFlyerSettings: Codable {
     let appsFlyerDevKey: String

@@ -8,6 +8,7 @@
 import SwiftUI
 import Segment
 import SegmentAppsFlyer
+import AppsFlyerLib
 
 @main
 struct BasicExampleApp: App {
@@ -18,12 +19,21 @@ struct BasicExampleApp: App {
     }
 }
 
+class DeepLinkManager: NSObject, DeepLinkDelegate {
+    func didResolveDeepLink(_ result: DeepLinkResult) {
+        print("Deep Link: \(result)")
+    }
+}
+
 extension Analytics {
     static var main: Analytics {
         let analytics = Analytics(configuration: Configuration(writeKey: "<YOUR WRITE KEY>")
                     .flushAt(3)
                     .trackApplicationLifecycleEvents(true))
-        analytics.add(plugin: AppsFlyerDestination())
+        
+        let deepLinkHandler = DeepLinkManager()
+        let appsFlyer = AppsFlyerDestination(segDLDelegate: deepLinkHandler)
+        analytics.add(plugin: appsFlyer)
         return analytics
     }
 }
