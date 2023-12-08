@@ -213,12 +213,10 @@ extension AppsFlyerDestination: AppsFlyerLibDelegate {
                         "name": campaign,
                         "ad_group": adgroup
                     ]
-                    let campaignStr = (campaign.compactMap({ (key, value) -> String in
-                        return "\(key)=\(value)"
-                    }) as Array).joined(separator: ";")
+
                     let properties: [String: Codable] = [
                         "provider": "AppsFlyer",
-                        "campaign": campaignStr
+                        "campaign": try? JSON(campaign)
                     ]
                     analytics?.track(name: "Install Attributed", properties: properties)
                     
