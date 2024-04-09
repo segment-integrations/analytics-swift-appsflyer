@@ -22,12 +22,12 @@ let package = Package(
         .package(
             name: "Segment",
             url: "https://github.com/segmentio/analytics-swift.git",
-            from: "1.5.5"
+            from: "1.5.9"
         ),
         .package(
-            name: "AppsFlyerLib",
-            url: "https://github.com/AppsFlyerSDK/AppsFlyerFramework",
-            from: "6.13.1"
+            name: "AppsFlyerLib-Dynamic",
+            url: "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Dynamic",
+            from: "6.14.0"
         )
     ],
     targets: [
@@ -35,7 +35,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "SegmentAppsFlyer",
-            dependencies: ["Segment", "AppsFlyerLib"]),
+            dependencies: ["Segment", "AppsFlyerLib-Dynamic"]),
         
         // TESTS ARE HANDLED VIA THE EXAMPLE APP.
     ]

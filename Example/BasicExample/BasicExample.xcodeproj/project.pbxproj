@@ -14,6 +14,7 @@
 		46EDC70727C6B8D200B870D7 /* BasicExampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46EDC70627C6B8D200B870D7 /* BasicExampleTests.swift */; };
 		46EDC71127C6B8D200B870D7 /* BasicExampleUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46EDC71027C6B8D200B870D7 /* BasicExampleUITests.swift */; };
 		46EDC71327C6B8D200B870D7 /* BasicExampleUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46EDC71227C6B8D200B870D7 /* BasicExampleUITestsLaunchTests.swift */; };
+		829478832BC5DC810066FC81 /* AppsFlyerLib-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 829478822BC5DC810066FC81 /* AppsFlyerLib-Dynamic */; };
 		EA64AC7329D31296009F2F53 /* Segment in Frameworks */ = {isa = PBXBuildFile; productRef = EA64AC7229D31296009F2F53 /* Segment */; };
 		EA64AC7529D3129A009F2F53 /* SegmentAppsFlyer in Frameworks */ = {isa = PBXBuildFile; productRef = EA64AC7429D3129A009F2F53 /* SegmentAppsFlyer */; };
 /* End PBXBuildFile section */
@@ -53,6 +54,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				829478832BC5DC810066FC81 /* AppsFlyerLib-Dynamic in Frameworks */,
 				EA64AC7329D31296009F2F53 /* Segment in Frameworks */,
 				EA64AC7529D3129A009F2F53 /* SegmentAppsFlyer in Frameworks */,
 			);
@@ -158,6 +160,7 @@
 			packageProductDependencies = (
 				EA64AC7229D31296009F2F53 /* Segment */,
 				EA64AC7429D3129A009F2F53 /* SegmentAppsFlyer */,
+				829478822BC5DC810066FC81 /* AppsFlyerLib-Dynamic */,
 			);
 			productName = BasicExample;
 			productReference = 46EDC6F227C6B8D100B870D7 /* BasicExample.app */;
@@ -233,6 +236,7 @@
 			mainGroup = 46EDC6E927C6B8D100B870D7;
 			packageReferences = (
 				46EDC71F27C6B92C00B870D7 /* XCRemoteSwiftPackageReference "analytics-swift" */,
+				829478812BC5DC800066FC81 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Dynamic" */,
 			);
 			productRefGroup = 46EDC6F327C6B8D100B870D7 /* Products */;
 			projectDirPath = "";
@@ -608,9 +612,22 @@
 				minimumVersion = 1.1.2;
 			};
 		};
+		829478812BC5DC800066FC81 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Dynamic" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Dynamic";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.14.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		829478822BC5DC810066FC81 /* AppsFlyerLib-Dynamic */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 829478812BC5DC800066FC81 /* XCRemoteSwiftPackageReference "AppsFlyerFramework-Dynamic" */;
+			productName = "AppsFlyerLib-Dynamic";
+		};
 		EA64AC7229D31296009F2F53 /* Segment */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 46EDC71F27C6B92C00B870D7 /* XCRemoteSwiftPackageReference "analytics-swift" */;
