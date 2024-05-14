@@ -43,7 +43,7 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
     public let type = PluginType.destination
     public let key = "AppsFlyer"
     
-    public var analytics: Analytics?
+    public weak var analytics: Analytics?
     
     fileprivate var settings: AppsFlyerSettings? = nil
 
