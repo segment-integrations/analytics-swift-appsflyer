@@ -214,10 +214,19 @@ extension AppsFlyerDestination: AppsFlyerLibDelegate {
                         "ad_group": adgroup
                     ]
 
-                    let properties: [String: Codable] = [
+                    var properties: [String: Any] = [
                         "provider": "AppsFlyer",
-                        "campaign": try? JSON(campaign)
+                        "campaign": campaign
                     ]
+                    
+                    if let conversionInfo = conversionInfo as? [String: Any] {
+                        properties.merge(conversionInfo) { current, _ in
+                            return current
+                        }
+                        // removed already-mapped special fields
+                        properties.removeValue(forKey: "media_source")
+                        properties.removeValue(forKey: "adgroup")
+                    }
                     analytics?.track(name: "Install Attributed", properties: properties)
                     
                 }
