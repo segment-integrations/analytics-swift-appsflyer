@@ -32,7 +32,7 @@ import Foundation
 import UIKit
 import Segment
 import AppsFlyerLib
-//moris
+
 @objc(SEGAppsFlyerDestination)
 public class ObjCSegmentAppsFlyer: NSObject, ObjCPlugin, ObjCPluginShim {
     public func instance() -> EventPlugin { return AppsFlyerDestination() }
