@@ -51,6 +51,7 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
     private weak var segDLDelegate: DeepLinkDelegate?
 
     private var isFirstLaunch = true
+    private var manualMode
 
     // MARK: - Initialization
 
@@ -62,9 +63,11 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
     ///   - segDelegate: When provided, this delegate will get called back for all AppsFlyerDelegate methods - ``onConversionDataSuccess(_:)``, ``onConversionDataFail(_:)``, ``onAppOpenAttribution(_:)``, ``onAppOpenAttributionFailure(_:)``
     ///   - segDLDelegate: When provided, this delegate will get called back for all DeepLinkDelegate routines, or just ``didResolveDeeplink``
     public init(segDelegate: AppsFlyerLibDelegate? = nil,
-                segDLDelegate: DeepLinkDelegate? = nil) {
+                segDLDelegate: DeepLinkDelegate? = nil,
+                manualMode: Bool = false) {
         self.segDelegate = segDelegate
         self.segDLDelegate = segDLDelegate
+        self.manualMode = manualMode
     }
 
     // MARK: - Plugin
@@ -77,6 +80,7 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
         
         AppsFlyerLib.shared().appsFlyerDevKey = settings.appsFlyerDevKey
         AppsFlyerLib.shared().appleAppID = settings.appleAppID
+        AppsFlyerLib.shared().setPluginInfo(plugin:Plugin.segment, version:"2.0.0", additionalParams:["Segment":"Analytics-Swift","Platform":"iOS"])
         
         // AppsFlyerLib.shared().waitForATTUserAuthorization(timeoutInterval: 60) //OPTIONAL
         AppsFlyerLib.shared().deepLinkDelegate = self //OPTIONAL
@@ -87,10 +91,15 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
         if trackAttributionData ?? false {
             AppsFlyerLib.shared().delegate = self
         }
+        if (!manualMode){
+            startAFSDK()
+            NotificationCenter.default.addObserver(self, selector: #selector(listenerStartSDK), name: UIApplication.didBecomeActiveNotification, object: nil)
+        }
+    }
 
+    public func startAppsflyerSDK(){
         startAFSDK()
         NotificationCenter.default.addObserver(self, selector: #selector(listenerStartSDK), name: UIApplication.didBecomeActiveNotification, object: nil)
-
     }
 
     private func startAFSDK() {
@@ -140,6 +149,7 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
     }
     
     public func track(event: TrackEvent) -> TrackEvent? {
+        // Appsflyer
         if(event.event == "Install Attributed" || 
             event.event == "Organic Install" || 
             event.event == "Deep Link Opened" ||
