@@ -145,7 +145,7 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
             event.event == "Deep Link Opened" ||
             event.event == "Direct Deep Link" ||
             event.event == "Deferred Deep Link"){
-                return
+                return nil
             }
         var properties = event.properties?.dictionaryValue
         
