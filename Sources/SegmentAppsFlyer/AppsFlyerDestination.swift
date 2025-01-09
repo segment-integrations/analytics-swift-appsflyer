@@ -97,6 +97,8 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
         }
     }
 
+// This is for the Manual Mode !
+// Once calling this function every didBecomeActive start will be called.
     public func startAppsflyerSDK(){
         startAFSDK()
         NotificationCenter.default.addObserver(self, selector: #selector(listenerStartSDK), name: UIApplication.didBecomeActiveNotification, object: nil)
@@ -111,7 +113,7 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
             isFirstLaunch = false
             return
         }
-        AppsFlyerLib.shared().start()
+        startAFSDK()
     }
     
     public func identify(event: IdentifyEvent) -> IdentifyEvent? {
