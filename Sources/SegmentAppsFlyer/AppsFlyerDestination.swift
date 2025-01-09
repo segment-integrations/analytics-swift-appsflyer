@@ -51,7 +51,7 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
     private weak var segDLDelegate: DeepLinkDelegate?
 
     private var isFirstLaunch = true
-    private var manualMode
+    private var manualMode: Bool
 
     // MARK: - Initialization
 
