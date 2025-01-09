@@ -215,17 +215,17 @@ extension AppsFlyerDestination {
 
 extension AppsFlyerDestination: AppsFlyerLibDelegate {
     public func onConversionDataSuccess(_ conversionInfo: [AnyHashable : Any]) {
-        // guard let firstLaunchFlag = conversionInfo["is_first_launch"] as? Int else {
-        //     return
-        // }
+        guard let firstLaunchFlag = conversionInfo["is_first_launch"] as? Int else {
+            return
+        }
         
-        // guard let status = conversionInfo["af_status"] as? String else {
-        //     return
-        // }
+        guard let status = conversionInfo["af_status"] as? String else {
+            return
+        }
         
-        // if (firstLaunchFlag == 1) {
+        if (firstLaunchFlag == 1) {
             segDelegate?.onConversionDataSuccess(conversionInfo)
-            // if (status == "Non-organic") {
+            if (status == "Non-organic") {
                 if let mediaSource = conversionInfo["media_source"] , let campaign = conversionInfo["campaign"], let adgroup = conversionInfo["adgroup"]{
                     
                     let campaign: [String: Any] = [
@@ -250,12 +250,10 @@ extension AppsFlyerDestination: AppsFlyerLibDelegate {
                     analytics?.track(name: "Install Attributed", properties: properties)
                     
                 }
-            // } else {
-            //     analytics?.track(name: "Organic Install")
-            // }
-        // } else {
-        // }
-        
+            } else {
+                analytics?.track(name: "Organic Install")
+            }
+        }
     }
     
     public func onConversionDataFail(_ error: Error) {
