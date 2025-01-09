@@ -140,7 +140,13 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
     }
     
     public func track(event: TrackEvent) -> TrackEvent? {
-        
+        if(event.event == "Install Attributed" || 
+            event.event == "Organic Install" || 
+            event.event == "Deep Link Opened" ||
+            event.event == "Direct Deep Link" ||
+            event.event == "Deferred Deep Link"){
+                return
+            }
         var properties = event.properties?.dictionaryValue
         
         let revenue: Double? = extractRevenue(key: "revenue", from: properties)
