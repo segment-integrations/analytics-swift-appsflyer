@@ -50,6 +50,8 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
     private weak var segDelegate: AppsFlyerLibDelegate?
     private weak var segDLDelegate: DeepLinkDelegate?
 
+    private var isFirstLaunch = true
+
     // MARK: - Initialization
 
     /// Creates and returns an AppsFlyer destination plugin for the Segment SDK
@@ -76,14 +78,31 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
         AppsFlyerLib.shared().appsFlyerDevKey = settings.appsFlyerDevKey
         AppsFlyerLib.shared().appleAppID = settings.appleAppID
         
-        AppsFlyerLib.shared().waitForATTUserAuthorization(timeoutInterval: 60) //OPTIONAL
+        // AppsFlyerLib.shared().waitForATTUserAuthorization(timeoutInterval: 60) //OPTIONAL
         AppsFlyerLib.shared().deepLinkDelegate = self //OPTIONAL
+        // AppsFlyerLib.shared().isDebug = true
         
         let trackAttributionData = settings.trackAttributionData
         
         if trackAttributionData ?? false {
             AppsFlyerLib.shared().delegate = self
         }
+
+        startAFSDK()
+        NotificationCenter.default.addObserver(self, selector: #selector(listenerStartSDK), name: UIApplication.didBecomeActiveNotification, object: nil)
+
+    }
+
+    private func startAFSDK() {
+        AppsFlyerLib.shared().start()
+    }
+
+    @objc func listenerStartSDK() {
+        if(isFirstLaunch){
+            isFirstLaunch = false
+            return
+        }
+        AppsFlyerLib.shared().start()
     }
     
     public func identify(event: IdentifyEvent) -> IdentifyEvent? {
@@ -92,25 +111,29 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
         }
         
         if let traits = event.traits?.dictionaryValue {
-            var aFTraits: [AnyHashable: Any] = [:]
+            var afTraits: [AnyHashable: Any] = [:]
             
             if let email = traits["email"] as? String {
-                aFTraits["email"] = email
+                afTraits["email"] = email
             }
             
             if let firstName = traits["firstName"] as? String {
-                aFTraits["firstName"] = firstName
+                afTraits["firstName"] = firstName
             }
             
             if let lastName = traits["lastName"] as? String {
-                aFTraits["lastName"] = lastName
+                afTraits["lastName"] = lastName
+            }
+
+            if let username = traits["username"] as? String {
+                afTraits["username"] = username
             }
             
             if traits["currencyCode"] != nil {
                 AppsFlyerLib.shared().currencyCode = traits["currencyCode"] as? String
             }
             
-            AppsFlyerLib.shared().customData = aFTraits
+            AppsFlyerLib.shared().customData = afTraits 
         }
         
         return event
@@ -121,30 +144,22 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
         var properties = event.properties?.dictionaryValue
         
         let revenue: Double? = extractRevenue(key: "revenue", from: properties)
-        let currency: String? = extractCurrency(key: "currency", from: properties, withDefault: "USD")
+        let currency: String? = extractCurrency(key: "currency", from: properties)
         
         if let afRevenue = revenue, let afCurrency = currency {
             properties?["af_revenue"] = afRevenue
             properties?["af_currency"] = afCurrency
             
             properties?.removeValue(forKey: "revenue")
-            properties?.removeValue(forKey: "currency")
-            
-            AppsFlyerLib.shared().logEvent(event.event, withValues: properties)
-            
-        } else {
-            AppsFlyerLib.shared().logEvent(event.event, withValues: properties)
+            properties?.removeValue(forKey: "currency")     
         }
-        
+
+        AppsFlyerLib.shared().logEvent(event.event, withValues: properties)
         return event
     }
 }
 
 extension AppsFlyerDestination: RemoteNotifications, iOSLifecycle {
-    public func applicationDidBecomeActive(application: UIApplication?) {
-        AppsFlyerLib.shared().start()
-    }
-    
     public func openURL(_ url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) {
         AppsFlyerLib.shared().handleOpen(url, options: options)
     }
@@ -168,25 +183,30 @@ extension AppsFlyerDestination: UserActivities {
 // https://github.com/AppsFlyerSDK/segment-appsflyer-ios/blob/master/segment-appsflyer-ios/Classes/SEGAppsFlyerIntegration.m#L148
 extension AppsFlyerDestination {
     internal func extractRevenue(key: String, from properties: [String: Any]?) -> Double? {
-        
-        guard let revenueProperty =  properties?[key] as? Double else {return nil}
-        
-        if let revenue = properties?["revenue"] as? String  {
-            let revenueProperty = Double(revenue)
-            return revenueProperty
-            
+        guard let value = properties?[key] else {
+            return nil
         }
-        return revenueProperty
+        
+        if let doubleValue = value as? Double {
+            return doubleValue
+        } else if let stringValue = value as? String {
+            return Double(stringValue)
+        }
+        
+        return nil
     }
     
     
-    internal func extractCurrency(key: String, from properties: [String: Any]?, withDefault value: String? = nil) -> String? {
-        
-        if let currency = properties?[key] as? String {
-            return currency
+    internal func extractCurrency(key: String, from properties: [String: Any]?) -> String? {
+        guard let value = properties?[key] else {
+            return nil
         }
         
-        return "USD"
+        if let stringValue = value as? String {
+            return stringValue
+        }
+        
+        return nil
     }
     
 }
@@ -195,17 +215,17 @@ extension AppsFlyerDestination {
 
 extension AppsFlyerDestination: AppsFlyerLibDelegate {
     public func onConversionDataSuccess(_ conversionInfo: [AnyHashable : Any]) {
-        guard let firstLaunchFlag = conversionInfo["is_first_launch"] as? Int else {
-            return
-        }
+        // guard let firstLaunchFlag = conversionInfo["is_first_launch"] as? Int else {
+        //     return
+        // }
         
-        guard let status = conversionInfo["af_status"] as? String else {
-            return
-        }
+        // guard let status = conversionInfo["af_status"] as? String else {
+        //     return
+        // }
         
-        if (firstLaunchFlag == 1) {
+        // if (firstLaunchFlag == 1) {
             segDelegate?.onConversionDataSuccess(conversionInfo)
-            if (status == "Non-organic") {
+            // if (status == "Non-organic") {
                 if let mediaSource = conversionInfo["media_source"] , let campaign = conversionInfo["campaign"], let adgroup = conversionInfo["adgroup"]{
                     
                     let campaign: [String: Any] = [
@@ -230,11 +250,11 @@ extension AppsFlyerDestination: AppsFlyerLibDelegate {
                     analytics?.track(name: "Install Attributed", properties: properties)
                     
                 }
-            } else {
-                analytics?.track(name: "Organic Install")
-            }
-        } else {
-        }
+            // } else {
+            //     analytics?.track(name: "Organic Install")
+            // }
+        // } else {
+        // }
         
     }
     
