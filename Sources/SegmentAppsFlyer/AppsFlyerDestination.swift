@@ -51,7 +51,7 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
     private weak var segDLDelegate: DeepLinkDelegate?
 
     private var isFirstLaunch = true
-    private var manualMode: Bool
+    private var manualMode: Bool = false
 
     // MARK: - Initialization
 
@@ -82,6 +82,8 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
         AppsFlyerLib.shared().appleAppID = settings.appleAppID
         AppsFlyerLib.shared().setPluginInfo(plugin:Plugin.segment, version:"2.0.0", additionalParams:["Segment":"Analytics-Swift","Platform":"iOS"])
         
+        // Commented this in order to let the developer set it as suits them.
+        // It is available by the developer with AppsFlyerLib.shared() on their iOS native code.
         // AppsFlyerLib.shared().waitForATTUserAuthorization(timeoutInterval: 60) //OPTIONAL
         AppsFlyerLib.shared().deepLinkDelegate = self //OPTIONAL
         // AppsFlyerLib.shared().isDebug = true
@@ -91,6 +93,10 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
         if trackAttributionData ?? false {
             AppsFlyerLib.shared().delegate = self
         }
+
+        // Manual mode is a mode which let's the developer the abillity to start the SDK.
+        // Once setting manualMode=true in the init, the develper should use startAppsflyerSDK method to start the SDK.
+        // Once started the SDK it will be start automatically by the life cycle - didBecomeActiveNotification.
         if (!manualMode){
             startAFSDK()
             NotificationCenter.default.addObserver(self, selector: #selector(listenerStartSDK), name: UIApplication.didBecomeActiveNotification, object: nil)
@@ -151,7 +157,7 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
     }
     
     public func track(event: TrackEvent) -> TrackEvent? {
-        // Appsflyer
+        // Verify we are not looping an event.
         if(event.event == "Install Attributed" || 
             event.event == "Organic Install" || 
             event.event == "Deep Link Opened" ||
