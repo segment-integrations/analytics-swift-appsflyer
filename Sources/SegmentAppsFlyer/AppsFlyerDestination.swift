@@ -50,6 +50,9 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
     private weak var segDelegate: AppsFlyerLibDelegate?
     private weak var segDLDelegate: DeepLinkDelegate?
 
+    private var isFirstLaunch = true
+    private var manualMode: Bool = false
+
     // MARK: - Initialization
 
     /// Creates and returns an AppsFlyer destination plugin for the Segment SDK
@@ -60,9 +63,11 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
     ///   - segDelegate: When provided, this delegate will get called back for all AppsFlyerDelegate methods - ``onConversionDataSuccess(_:)``, ``onConversionDataFail(_:)``, ``onAppOpenAttribution(_:)``, ``onAppOpenAttributionFailure(_:)``
     ///   - segDLDelegate: When provided, this delegate will get called back for all DeepLinkDelegate routines, or just ``didResolveDeeplink``
     public init(segDelegate: AppsFlyerLibDelegate? = nil,
-                segDLDelegate: DeepLinkDelegate? = nil) {
+                segDLDelegate: DeepLinkDelegate? = nil,
+                manualMode: Bool = false) {
         self.segDelegate = segDelegate
         self.segDLDelegate = segDLDelegate
+        self.manualMode = manualMode
     }
 
     // MARK: - Plugin
@@ -75,15 +80,46 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
         
         AppsFlyerLib.shared().appsFlyerDevKey = settings.appsFlyerDevKey
         AppsFlyerLib.shared().appleAppID = settings.appleAppID
+        AppsFlyerLib.shared().setPluginInfo(plugin:Plugin.segment, version:"2.0.0", additionalParams:["Segment":"Analytics-Swift","Platform":"iOS"])
         
-        AppsFlyerLib.shared().waitForATTUserAuthorization(timeoutInterval: 60) //OPTIONAL
+        // Commented this in order to let the developer set it as suits them.
+        // It is available by the developer with AppsFlyerLib.shared() on their iOS native code.
+        // AppsFlyerLib.shared().waitForATTUserAuthorization(timeoutInterval: 60) //OPTIONAL
         AppsFlyerLib.shared().deepLinkDelegate = self //OPTIONAL
+        // AppsFlyerLib.shared().isDebug = true
         
         let trackAttributionData = settings.trackAttributionData
         
         if trackAttributionData ?? false {
             AppsFlyerLib.shared().delegate = self
         }
+
+        // Manual mode is a mode which let's the developer the abillity to start the SDK.
+        // Once setting manualMode=true in the init, the develper should use startAppsflyerSDK method to start the SDK.
+        // Once started the SDK it will be start automatically by the life cycle - didBecomeActiveNotification.
+        if (!manualMode){
+            startAFSDK()
+            NotificationCenter.default.addObserver(self, selector: #selector(listenerStartSDK), name: UIApplication.didBecomeActiveNotification, object: nil)
+        }
+    }
+
+// This is for the Manual Mode !
+// Once calling this function every didBecomeActive start will be called.
+    public func startAppsflyerSDK(){
+        startAFSDK()
+        NotificationCenter.default.addObserver(self, selector: #selector(listenerStartSDK), name: UIApplication.didBecomeActiveNotification, object: nil)
+    }
+
+    private func startAFSDK() {
+        AppsFlyerLib.shared().start()
+    }
+
+    @objc func listenerStartSDK() {
+        if(isFirstLaunch){
+            isFirstLaunch = false
+            return
+        }
+        startAFSDK()
     }
     
     public func identify(event: IdentifyEvent) -> IdentifyEvent? {
@@ -92,59 +128,62 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
         }
         
         if let traits = event.traits?.dictionaryValue {
-            var aFTraits: [AnyHashable: Any] = [:]
+            var afTraits: [AnyHashable: Any] = [:]
             
             if let email = traits["email"] as? String {
-                aFTraits["email"] = email
+                afTraits["email"] = email
             }
             
             if let firstName = traits["firstName"] as? String {
-                aFTraits["firstName"] = firstName
+                afTraits["firstName"] = firstName
             }
             
             if let lastName = traits["lastName"] as? String {
-                aFTraits["lastName"] = lastName
+                afTraits["lastName"] = lastName
+            }
+
+            if let username = traits["username"] as? String {
+                afTraits["username"] = username
             }
             
             if traits["currencyCode"] != nil {
                 AppsFlyerLib.shared().currencyCode = traits["currencyCode"] as? String
             }
             
-            AppsFlyerLib.shared().customData = aFTraits
+            AppsFlyerLib.shared().customData = afTraits 
         }
         
         return event
     }
     
     public func track(event: TrackEvent) -> TrackEvent? {
-        
+        // Verify we are not looping an event.
+        if(event.event == "Install Attributed" || 
+            event.event == "Organic Install" || 
+            event.event == "Deep Link Opened" ||
+            event.event == "Direct Deep Link" ||
+            event.event == "Deferred Deep Link"){
+                return nil
+            }
         var properties = event.properties?.dictionaryValue
         
         let revenue: Double? = extractRevenue(key: "revenue", from: properties)
-        let currency: String? = extractCurrency(key: "currency", from: properties, withDefault: "USD")
+        let currency: String? = extractCurrency(key: "currency", from: properties)
         
         if let afRevenue = revenue, let afCurrency = currency {
             properties?["af_revenue"] = afRevenue
             properties?["af_currency"] = afCurrency
             
             properties?.removeValue(forKey: "revenue")
-            properties?.removeValue(forKey: "currency")
-            
-            AppsFlyerLib.shared().logEvent(event.event, withValues: properties)
-            
-        } else {
-            AppsFlyerLib.shared().logEvent(event.event, withValues: properties)
+            properties?.removeValue(forKey: "currency")     
         }
-        
+
+        AppsFlyerLib.shared().logEvent(event.event, withValues: properties)
         return event
     }
 }
 
 extension AppsFlyerDestination: RemoteNotifications, iOSLifecycle {
-    public func applicationDidBecomeActive(application: UIApplication?) {
-        AppsFlyerLib.shared().start()
-    }
-    
     public func openURL(_ url: URL, options: [UIApplication.OpenURLOptionsKey : Any]) {
         AppsFlyerLib.shared().handleOpen(url, options: options)
     }
@@ -168,25 +207,30 @@ extension AppsFlyerDestination: UserActivities {
 // https://github.com/AppsFlyerSDK/segment-appsflyer-ios/blob/master/segment-appsflyer-ios/Classes/SEGAppsFlyerIntegration.m#L148
 extension AppsFlyerDestination {
     internal func extractRevenue(key: String, from properties: [String: Any]?) -> Double? {
-        
-        guard let revenueProperty =  properties?[key] as? Double else {return nil}
-        
-        if let revenue = properties?["revenue"] as? String  {
-            let revenueProperty = Double(revenue)
-            return revenueProperty
-            
+        guard let value = properties?[key] else {
+            return nil
         }
-        return revenueProperty
+        
+        if let doubleValue = value as? Double {
+            return doubleValue
+        } else if let stringValue = value as? String {
+            return Double(stringValue)
+        }
+        
+        return nil
     }
     
     
-    internal func extractCurrency(key: String, from properties: [String: Any]?, withDefault value: String? = nil) -> String? {
-        
-        if let currency = properties?[key] as? String {
-            return currency
+    internal func extractCurrency(key: String, from properties: [String: Any]?) -> String? {
+        guard let value = properties?[key] else {
+            return nil
         }
         
-        return "USD"
+        if let stringValue = value as? String {
+            return stringValue
+        }
+        
+        return nil
     }
     
 }
@@ -233,9 +277,7 @@ extension AppsFlyerDestination: AppsFlyerLibDelegate {
             } else {
                 analytics?.track(name: "Organic Install")
             }
-        } else {
         }
-        
     }
     
     public func onConversionDataFail(_ error: Error) {
