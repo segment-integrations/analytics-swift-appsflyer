@@ -25,8 +25,8 @@ let package = Package(
             from: "1.5.9"
         ),
         .package(
-            name: "AppsFlyerLib-Dynamic",
-            url: "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Dynamic",
+            name: "AppsFlyerLib-Static",
+            url: "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Static",
             from: "6.14.0"
         )
     ],
@@ -35,7 +35,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "SegmentAppsFlyer",
-            dependencies: ["Segment", "AppsFlyerLib-Dynamic"]),
+            dependencies: ["Segment", "AppsFlyerLib-Static"]),
         
         // TESTS ARE HANDLED VIA THE EXAMPLE APP.
     ]
