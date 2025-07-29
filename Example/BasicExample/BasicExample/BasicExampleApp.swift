@@ -54,6 +54,11 @@ struct BasicExampleApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onOpenURL { url in
+                    // Handle deep links in SwiftUI
+                    print("Deep link received: \(url)")
+                    AppsFlyerLib.shared().handleOpen(url, options: nil)
+                }
         }
     }
 }
