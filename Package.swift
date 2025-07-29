@@ -27,7 +27,7 @@ let package = Package(
         .package(
             name: "AppsFlyerLib-Dynamic",
             url: "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Dynamic",
-            from: "6.17.0"
+            .exact: "6.17.0"
         )
     ],
     targets: [
