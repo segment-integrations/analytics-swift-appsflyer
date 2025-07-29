@@ -162,7 +162,10 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
             event.event == "Organic Install" || 
             event.event == "Deep Link Opened" ||
             event.event == "Direct Deep Link" ||
-            event.event == "Deferred Deep Link"){
+            event.event == "Deferred Deep Link" ||
+            event.event == "Application Backgrounded" ||
+            event.event == "Application Opened" ||
+            event.event == "Application Foregrounded" ){
                 return nil
             }
         var properties = event.properties?.dictionaryValue
