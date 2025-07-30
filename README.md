@@ -54,6 +54,9 @@ analytics.add(plugin: AppsFlyerDestination())
 
 Your events will now begin to flow to AppsFlyer in device mode.
 
+## Appsflyer SDK documentation
+Please go here to see the Appsflyer Native iOS documentation [here](https://dev.appsflyer.com/hc/docs/ios-sdk)
+
 ## <a id="manual"> Manual mode
 We support a manual mode to seperate the initialization of the AppsFlyer SDK and the start of the SDK. In this case, the AppsFlyer SDK won't start automatically, giving the developer more freedom when to start the AppsFlyer SDK. Please note that in manual mode, the developper is required to implement the API ``startAppsflyerSDK()`` in order to start the SDK. 
 <br>If you are using CMP to collect consent data this feature is needed. See explanation [here](#dma_support).
@@ -178,7 +181,7 @@ struct NewAnalyticsAppsflyerIntegrationApp: App {
   ```
 
 ## <a id="dma_support"> Send consent for DMA compliance
-For a general introduction to DMA consent data, see [here](https://dev.appsflyer.com/hc/docs/send-consent-for-dma-compliance).<be>
+**important:** As of Appsflyer SDK 6.17.0 there are additions in the Appsflyer SDK API on how to use DMA, [see here](https://dev.appsflyer.com/hc/docs/ios-send-consent-for-dma-compliance).<br>
 The SDK offers two alternative methods for gathering consent data:<br>
 - **Through a Consent Management Platform (CMP)**: If the app uses a CMP that complies with the [Transparency and Consent Framework (TCF) v2.2 protocol](https://iabeurope.eu/tcf-supporting-resources/), the SDK can automatically retrieve the consent details.<br>
 <br>OR<br><br>
