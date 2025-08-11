@@ -123,9 +123,11 @@ public class AppsFlyerDestination: UIResponder, DestinationPlugin  {
     }
     
     public func identify(event: IdentifyEvent) -> IdentifyEvent? {
-        if let userId = event.userId, userId.count > 0 {
+        if let userId = event.userId, !userId.isEmpty {
             AppsFlyerLib.shared().customerUserID = userId
-        }
+		} else if let userId = event.anonymousId, !userId.isEmpty {
+			AppsFlyerLib.shared().customerUserID = userId
+		}
         
         if let traits = event.traits?.dictionaryValue {
             var afTraits: [AnyHashable: Any] = [:]
