@@ -1,0 +1,10 @@
+{
+  "packages": ["nodejs@22", "jq@latest"],
+  "shell": {
+    "init_hook": ["export PROJECT_ROOT=$(git rev-parse --show-toplevel)"],
+    "scripts": {
+      "release": "npm ci && npx semantic-release",
+      "release-dry-run": "npm ci && npx semantic-release --dry-run"
+    }
+  }
+}
