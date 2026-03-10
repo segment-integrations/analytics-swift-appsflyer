@@ -13,34 +13,34 @@ struct ContentView: View {
         VStack {
             HStack {
                 Button(action: {
-                    Analytics.main.track(name: "Track")
+                    BasicExampleApp.analytics?.track(name: "Track")
                 }, label: {
                     Text("Track")
                 }).padding(6)
                 Button(action: {
-                    Analytics.main.screen(title: "Screen appeared")
+                    BasicExampleApp.analytics?.screen(title: "Screen appeared")
                 }, label: {
                     Text("Screen")
                 }).padding(6)
             }.padding(8)
             HStack {
                 Button(action: {
-                    Analytics.main.group(groupId: "12345-Group")
-                    Analytics.main.log(message: "Started group")
+                    BasicExampleApp.analytics?.group(groupId: "12345-Group")
+                    BasicExampleApp.analytics?.log(message: "Started group")
                 }, label: {
                     Text("Group")
                 }).padding(6)
                 Button(action: {
-                    Analytics.main.identify(userId: "X-1234567890")
+                    BasicExampleApp.analytics?.identify(userId: "X-1234567890")
                 }, label: {
                     Text("Identify")
                 }).padding(6)
             }.padding(8)
         }.onAppear {
-            Analytics.main.track(name: "onAppear")
+            BasicExampleApp.analytics?.track(name: "onAppear")
             print("Executed Analytics onAppear()")
         }.onDisappear {
-            Analytics.main.track(name: "onDisappear")
+            BasicExampleApp.analytics?.track(name: "onDisappear")
             print("Executed Analytics onDisappear()")
         }
     }
