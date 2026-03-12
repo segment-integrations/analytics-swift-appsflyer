@@ -1,0 +1,79 @@
+name: Auto Release on Version Change
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Sources/SegmentAppsFlyer/Version.swift'
+
+jobs:
+  auto-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from Version.swift
+        id: version
+        run: |
+          VERSION=$(grep -oP 'internal let __destination_version = "\K[^"]+' Sources/SegmentAppsFlyer/Version.swift)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Detected version: $VERSION"
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag $VERSION already exists, skipping release"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Tag $VERSION does not exist, will create release"
+          fi
+
+      - name: Generate release notes
+        if: steps.check_tag.outputs.exists == 'false'
+        id: notes
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Get the last tag
+          LAST_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -n "$LAST_TAG" ]; then
+            # Get commits between last tag and current commit
+            CHANGELOG=$(git log --pretty=format:"- %s (%an)" $LAST_TAG..HEAD | grep -v "^- chore(release):" || echo "- Initial release")
+          else
+            # First release
+            CHANGELOG=$(git log --pretty=format:"- %s (%an)" HEAD~10..HEAD | grep -v "^- chore(release):" || echo "- Initial release")
+          fi
+
+          # Save to file for multiline output
+          cat > /tmp/release_notes.md <<EOF
+          ## What's Changed
+
+          $CHANGELOG
+
+          **Full Changelog**: ${LAST_TAG:+$LAST_TAG...}$VERSION
+          EOF
+
+          echo "Generated release notes for $VERSION"
+
+      - name: Create GitHub Release
+        if: steps.check_tag.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          gh release create "$VERSION" \
+            --title "Version $VERSION" \
+            --notes-file /tmp/release_notes.md \
+            --latest
+
+          echo "Created release $VERSION"
