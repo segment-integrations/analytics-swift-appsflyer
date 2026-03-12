@@ -35,20 +35,25 @@ jobs:
             echo "Using provided version: $NEW_VERSION"
           else
             # Calculate version from conventional commits
+            echo "Running semantic-release to calculate next version..."
             devbox run -- npx semantic-release --dry-run > /tmp/semrel.log 2>&1 || true
+
+            echo "=== Semantic-release output (last 30 lines) ==="
+            tail -30 /tmp/semrel.log
 
             # Extract version from semantic-release output (use sed for portability)
             NEW_VERSION=$(grep "Published release" /tmp/semrel.log | sed -n 's/.*Published release \([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' | head -1)
 
             if [ -z "$NEW_VERSION" ]; then
               # Fallback: if no version found, check if there are releasable commits
-              if grep -q "no release" /tmp/semrel.log; then
+              if grep -q "no release" /tmp/semrel.log || grep -q "There are no relevant changes" /tmp/semrel.log; then
                 echo "::error::No releasable commits found. Use fix:/feat:/BREAKING CHANGE: commit format."
                 exit 1
               fi
               # Get current version and bump patch
               CURRENT_VERSION=$(grep '__destination_version' Sources/SegmentAppsFlyer/Version.swift | sed -n 's/.*"\([^"]*\)".*/\1/p')
-              echo "Could not calculate version, current is $CURRENT_VERSION"
+              echo "::error::Could not extract version from semantic-release output. Current version is $CURRENT_VERSION"
+              echo "Check the semantic-release output above for details."
               exit 1
             fi
             echo "Calculated version from commits: $NEW_VERSION"
