@@ -27,7 +27,7 @@ let package = Package(
         .package(
             name: "AppsFlyerLib-Dynamic",
             url: "https://github.com/AppsFlyerSDK/AppsFlyerFramework-Dynamic",
-            .exact("6.17.0")
+            .exact("6.17.8")
         )
     ],
     targets: [
@@ -35,8 +35,11 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "SegmentAppsFlyer",
-            dependencies: ["Segment", "AppsFlyerLib-Dynamic"]),
-        
+            dependencies: ["Segment", "AppsFlyerLib-Dynamic"],
+            linkerSettings: [
+                .linkedFramework("StoreKit")
+            ]),
+
         // TESTS ARE HANDLED VIA THE EXAMPLE APP.
     ]
 )
