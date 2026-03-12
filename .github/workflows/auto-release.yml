@@ -20,7 +20,7 @@ jobs:
       - name: Extract version from Version.swift
         id: version
         run: |
-          VERSION=$(grep -oP 'internal let __destination_version = "\K[^"]+' Sources/SegmentAppsFlyer/Version.swift)
+          VERSION=$(grep '__destination_version' Sources/SegmentAppsFlyer/Version.swift | sed -n 's/.*"\([^"]*\)".*/\1/p')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Detected version: $VERSION"
 

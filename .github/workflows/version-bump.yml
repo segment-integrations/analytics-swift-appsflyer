@@ -37,8 +37,8 @@ jobs:
             # Calculate version from conventional commits
             devbox run -- npx semantic-release --dry-run > /tmp/semrel.log 2>&1 || true
 
-            # Extract version from semantic-release output
-            NEW_VERSION=$(grep -oP "Published release \K[0-9]+\.[0-9]+\.[0-9]+" /tmp/semrel.log || echo "")
+            # Extract version from semantic-release output (use sed for portability)
+            NEW_VERSION=$(grep "Published release" /tmp/semrel.log | sed -n 's/.*Published release \([0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\).*/\1/p' | head -1)
 
             if [ -z "$NEW_VERSION" ]; then
               # Fallback: if no version found, check if there are releasable commits
@@ -47,7 +47,7 @@ jobs:
                 exit 1
               fi
               # Get current version and bump patch
-              CURRENT_VERSION=$(grep -oP 'internal let __destination_version = "\K[^"]+' Sources/SegmentAppsFlyer/Version.swift)
+              CURRENT_VERSION=$(grep '__destination_version' Sources/SegmentAppsFlyer/Version.swift | sed -n 's/.*"\([^"]*\)".*/\1/p')
               echo "Could not calculate version, current is $CURRENT_VERSION"
               exit 1
             fi
