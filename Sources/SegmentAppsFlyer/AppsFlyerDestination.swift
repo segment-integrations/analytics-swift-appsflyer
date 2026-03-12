@@ -31,6 +31,7 @@
 import Foundation
 import UIKit
 import Segment
+import StoreKit
 import AppsFlyerLib
 
 @objc(SEGAppsFlyerDestination)
