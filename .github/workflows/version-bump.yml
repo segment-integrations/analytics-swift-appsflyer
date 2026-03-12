@@ -36,7 +36,7 @@ jobs:
           else
             # Calculate version from conventional commits
             echo "Running semantic-release to calculate next version..."
-            devbox run -- npx semantic-release --dry-run > /tmp/semrel.log 2>&1 || true
+            devbox run release-dry-run > /tmp/semrel.log 2>&1 || true
 
             echo "=== Semantic-release output (last 30 lines) ==="
             tail -30 /tmp/semrel.log
