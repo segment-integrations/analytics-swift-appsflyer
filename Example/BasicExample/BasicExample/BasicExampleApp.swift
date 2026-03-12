@@ -33,7 +33,7 @@ struct BasicExampleApp: App {
             segDelegate: BasicExampleApp.afDelegate,
             segDLDelegate: BasicExampleApp.afDelegate,
         )
-        BasicExampleApp.analytics?.add(plugin: NewAnalyticsAppsflyerIntegrationApp.appsflyerDest)
+        BasicExampleApp.analytics?.add(plugin: BasicExampleApp.appsflyerDest)
     }
 
     func requestTrackingAuthorization() {
