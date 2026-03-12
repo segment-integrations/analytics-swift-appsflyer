@@ -29,6 +29,10 @@ jobs:
         key: ${{ runner.os }}-spm-examples-${{ hashFiles('**/Package.resolved') }}
         restore-keys: |
           ${{ runner.os }}-spm-examples
+    - name: Clean build folder to prevent stale module cache issues
+      run: |
+          cd Example/BasicExample
+          xcodebuild clean -workspace "BasicExample.xcworkspace" -scheme "BasicExample"
     - name: build for ios simulator
       run: |
           cd Example/BasicExample
