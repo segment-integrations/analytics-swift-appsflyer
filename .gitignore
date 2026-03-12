@@ -91,3 +91,6 @@ iOSInjectionProject/
 /Example/BasicExample/BasicExample.xcodeproj/project.xcworkspace/xcshareddata/swiftpm
 .DS_Store
 /.swiftpm
+
+# Node.js (semantic-release)
+node_modules/
