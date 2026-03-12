@@ -4,13 +4,6 @@
   "plugins": [
     ["@semantic-release/commit-analyzer", {"preset": "conventionalcommits"}],
     ["@semantic-release/release-notes-generator", {"preset": "conventionalcommits"}],
-    ["@semantic-release/exec", {
-      "prepareCmd": "sed -i'' -e 's/internal let __destination_version = \".*\"/internal let __destination_version = \"${nextRelease.version}\"/' Sources/SegmentAppsFlyer/Version.swift"
-    }],
-    ["@semantic-release/git", {
-      "assets": ["Sources/SegmentAppsFlyer/Version.swift"],
-      "message": "chore(release): ${nextRelease.version}"
-    }],
     "@semantic-release/github"
   ]
 }

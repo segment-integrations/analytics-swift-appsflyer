@@ -1,7 +1,17 @@
 {
-  "packages": ["nodejs@22", "jq@latest"],
+  "packages": [
+    "nodejs@22",
+    "jq@latest",
+    "bash@latest",
+    "gnused@latest",
+    "git@latest",
+    "coreutils@latest"
+  ],
   "shell": {
-    "init_hook": ["export PROJECT_ROOT=$(git rev-parse --show-toplevel)"],
+    "init_hook": [
+      "export PROJECT_ROOT=$(git rev-parse --show-toplevel)",
+      "echo 'Using devbox-provided tools for consistent cross-platform behavior'"
+    ],
     "scripts": {
       "release": "npm ci && npx semantic-release",
       "release-dry-run": "npm ci && npx semantic-release --dry-run"
