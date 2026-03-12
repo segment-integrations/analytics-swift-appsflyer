@@ -27,10 +27,11 @@ jobs:
         id: version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
-          if [ -n "${{ inputs.version }}" ]; then
+          if [ -n "$INPUT_VERSION" ]; then
             # Use provided version
-            NEW_VERSION="${{ inputs.version }}"
+            NEW_VERSION="$INPUT_VERSION"
             echo "Using provided version: $NEW_VERSION"
           else
             # Calculate version from conventional commits
